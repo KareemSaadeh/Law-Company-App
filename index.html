@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Law Company App - Flutter Legal Platform Showcase</title>    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }        body {
+            font-family: 'Inter', 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0a1015 0%, #1a2428 35%, #0f1a1d 100%);
+            color: #e5e5e5;
+            overflow: hidden;
+            font-weight: 400;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }        .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }/* Title Slide */
+        .title-slide {
+            flex-direction: column;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(45, 140, 120, 0.12) 0%, transparent 70%);
+            padding: 60px;
+        }        .title-slide h1 {
+            font-size: clamp(3rem, 6vw, 4.5rem);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #2D8C78 0%, #3FA896 50%, #51C4B0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(45, 140, 120, 0.3);
+            letter-spacing: -0.02em;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 30px rgba(45, 140, 120, 0.3); }
+            100% { text-shadow: 0 0 40px rgba(45, 140, 120, 0.5), 0 0 60px rgba(45, 140, 120, 0.2); }
+        }
+
+        .title-slide p {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            color: #a8b5b3;
+            font-weight: 500;
+            opacity: 0.9;
+            font-style: italic;
+            margin-top: 1rem;
+        }/* Section Title Slides */
+        .section-slide {
+            flex-direction: column;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(45, 140, 120, 0.08) 0%, transparent 70%);
+            padding: 60px;
+        }
+
+        .section-slide h2 {
+            font-size: clamp(2.2rem, 4vw, 3rem);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #51C4B0;
+            text-shadow: 0 0 20px rgba(45, 140, 120, 0.3);
+        }
+
+        .section-slide p {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: #a8b5b3;
+            font-weight: 400;
+        }        /* iPhone Frame Container */
+        .phone-slide {
+            padding: 0;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+        }        .iphone-frame {
+            position: relative;
+            width: clamp(280px, 24vw, 380px);
+            height: auto;
+            aspect-ratio: 9 / 19.5;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border-radius: 50px;
+            padding: 8px;
+            overflow: hidden;
+            box-shadow:
+                0 12px 25px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 8px rgba(255, 255, 255, 0.03);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: auto;
+        }.iphone-frame:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(81, 196, 176, 0.3),
+                inset 0 1px 8px rgba(255, 255, 255, 0.05);
+        }        .screen {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+        }.screen::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 0 0 12px 12px;
+            z-index: 10;
+        }        .screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+            border-radius: 40px;
+            transition: transform 0.3s ease, opacity 0.5s ease;
+        }/* Dual Phone Layout */
+        .dual-phone-slide {
+            padding: 40px;
+            align-items: center;
+            justify-content: center;
+            gap: 60px;
+        }.dual-phone-slide .iphone-frame {
+            width: 250px;
+        }/* Navigation */
+        .nav-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 16px;
+            z-index: 100;
+        }.nav-btn {
+            background: rgba(20, 25, 30, 0.85);
+            border: 1px solid rgba(45, 140, 120, 0.25);
+            color: #e5e5e5;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            font-weight: 500;
+            font-size: 0.8rem;
+            position: relative;
+            overflow: hidden;
+            min-width: 90px;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(45, 140, 120, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(45, 140, 120, 0.12);
+            border-color: rgba(45, 140, 120, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(45, 140, 120, 0.15);
+            color: #51C4B0;
+        }        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:active {
+            transform: translateY(0px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: rgba(20, 25, 30, 0.6);
+            border-color: rgba(255, 255, 255, 0.08);
+            color: #666;
+        }
+
+        .nav-btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(20, 25, 30, 0.85);
+            border: 1px solid rgba(45, 140, 120, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #a8b5b3;
+            backdrop-filter: blur(20px);
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2D8C78 0%, #3FA896 50%, #51C4B0 100%);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            box-shadow: 
+                0 0 10px rgba(45, 140, 120, 0.4),
+                0 0 20px rgba(45, 140, 120, 0.2),
+                0 2px 4px rgba(45, 140, 120, 0.3);
+        }
+
+        /* Keyboard Hints - Modern Tooltip */
+        .keyboard-hints {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(20, 25, 30, 0.75);
+            border: 1px solid rgba(45, 140, 120, 0.15);
+            padding: 8px 14px;
+            border-radius: 18px;
+            font-size: 0.75rem;
+            color: #a8b5b3;
+            backdrop-filter: blur(20px);
+            font-weight: 400;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .keyboard-hints:hover {
+            opacity: 1;
+        }        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .iphone-frame {
+                width: clamp(260px, 28vw, 350px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 0;
+            }
+            
+            .title-slide, .section-slide {
+                padding: 40px 20px;
+            }
+            
+            .title-slide h1 {
+                font-size: clamp(2.5rem, 8vw, 3.5rem);
+            }
+            
+            .title-slide p {
+                font-size: clamp(1rem, 3vw, 1.3rem);
+            }
+            
+            .section-slide h2 {
+                font-size: clamp(1.8rem, 6vw, 2.5rem);
+            }
+              .iphone-frame {
+                width: clamp(240px, 65vw, 300px);
+            }
+            
+            .nav-controls {
+                bottom: 20px;
+                gap: 12px;
+            }
+            
+            .nav-btn {
+                padding: 6px 14px;
+                font-size: 0.75rem;
+                min-width: 75px;
+                border-radius: 20px;
+            }
+            
+            .keyboard-hints {
+                bottom: 20px;
+                left: 20px;
+                font-size: 0.7rem;
+            }
+            
+            .slide-counter {
+                bottom: 20px;
+                right: 20px;
+            }
+        }        @media (max-width: 480px) {
+            .iphone-frame {
+                width: clamp(220px, 75vw, 280px);
+            }
+            
+            .nav-controls {
+                bottom: 15px;
+            }
+        }        @media (min-width: 1920px) {
+            .iphone-frame {
+                width: clamp(380px, 20vw, 420px);
+            }
+        }
+    </style>
+</head>
+<body>    <div class="presentation-container">
+        <!-- Progress Bar -->
+        <div class="progress-bar" id="progressBar"></div>
+        
+        <!-- Keyboard Hints -->
+        <div class="keyboard-hints">
+            Use ← → arrow keys or click buttons to navigate
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide active">
+            <h1>Law Company App</h1>
+            <p>A Flutter-powered legal consultation platform</p>
+        </div>
+
+        <!-- Slide 2: Authentication Section -->
+        <div class="slide section-slide">
+            <h2>🔐 Authentication</h2>
+            <p>Secure login and registration system</p>
+        </div>
+
+        <!-- Slide 3: Login Page -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Login_page.png" alt="Login Page">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Sign Up Page -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Signup_page.png" alt="Sign Up Page">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Home & Dashboard Section -->
+        <div class="slide section-slide">
+            <h2>🏠 Home & Dashboard</h2>
+            <p>Overview and corporate services</p>
+        </div>
+
+        <!-- Slide 6: Home Page -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Home_page.png" alt="Home Dashboard">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Corporate Page -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Corporate_Page.png" alt="Corporate Services">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Case Management Section -->
+        <div class="slide section-slide">
+            <h2>📂 Case Management</h2>
+            <p>Track and manage legal cases efficiently</p>
+        </div>
+
+        <!-- Slide 9: Case List -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Case_List_Page.png" alt="Cases List">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Case Details 1 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/InCase_Details_Page_1.png" alt="Case Details">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Case Details 2 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/InCase_Details_Page_2.png" alt="Case Details Advanced">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Chat & Support Section -->
+        <div class="slide section-slide">
+            <h2>💬 Chat & Support</h2>
+            <p>Communicate with lawyers and AI assistance</p>
+        </div>
+
+        <!-- Slide 13: Chat List -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Chat_List_Page.png" alt="Chat List">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: In-Case Chat -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/InCase_Chat_Page_1.png" alt="In-Case Chat">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: AI Support Chat 1 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Chat_Page_AiStupport_1.png" alt="AI Support Chat">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: AI Support Chat 2 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Chat_Page_AiStupport_2.png" alt="AI Support Advanced">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Consultation Booking Section -->
+        <div class="slide section-slide">
+            <h2>📅 Consultation Booking</h2>
+            <p>Schedule and manage legal consultations</p>
+        </div>
+
+        <!-- Slide 18: Create Consultation 1 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/CreateConsultation_Page_1.png" alt="Create Consultation">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Create Consultation 2 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/CreateConsultation_Page_2.png" alt="Consultation Details">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Create Consultation 3 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/CreateConsultation_Page_3.png" alt="Consultation Scheduling">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Create Consultation 4 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/CreateConsultation_Page_4.png" alt="Consultation Confirmation">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: Consultation 1 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Consultaion_Page_1.png" alt="Consultation View">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Consultation 2 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Consultaion_Page_2.png" alt="Consultation Details">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Consultation 3 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Consultaion_Page_3.png" alt="Consultation Progress">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: Consultation 4 -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Consultaion_Page_4.png" alt="Consultation Summary">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 26: Documents Section -->
+        <div class="slide section-slide">
+            <h2>📄 Documents</h2>
+            <p>Manage legal documents and files</p>
+        </div>
+
+        <!-- Slide 27: Document Management -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/InCase_Document_Page_1.png" alt="Document Management">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 28: Profile & Settings Section -->
+        <div class="slide section-slide">
+            <h2>👤 Profile & Settings</h2>
+            <p>Manage account and preferences</p>
+        </div>
+
+        <!-- Slide 29: Profile Page -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Profile_Page.png" alt="Profile">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 30: Edit Profile -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Profile_page_Edit_Profile.png" alt="Edit Profile">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 31: Change Language -->
+        <div class="slide phone-slide">
+            <div class="iphone-frame">
+                <div class="screen">
+                    <img src="images/Profile_page_Change_Language.png" alt="Language Settings">
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="nav-controls">
+            <button class="nav-btn" id="prevBtn" onclick="previousSlide()">← Previous</button>
+            <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Next →</button>
+        </div>
+
+        <!-- Slide Counter -->
+        <div class="slide-counter" id="slideCounter">1 / 31</div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            updateUI();
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function updateUI() {
+            // Update slide counter
+            document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+            
+            // Update progress bar
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                if (currentSlide < totalSlides - 1) nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentSlide > 0) previousSlide();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        // Initialize
+        updateUI();
+
+        // Auto-hide cursor after inactivity
+        let cursorTimeout;
+        function hideCursor() {
+            document.body.style.cursor = 'none';
+        }
+        function showCursor() {
+            document.body.style.cursor = 'default';
+            clearTimeout(cursorTimeout);
+            cursorTimeout = setTimeout(hideCursor, 3000);
+        }
+
+        document.addEventListener('mousemove', showCursor);
+        cursorTimeout = setTimeout(hideCursor, 3000);
+    </script>
+</body>
+</html>
