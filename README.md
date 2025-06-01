@@ -3,6 +3,7 @@
 A modern Flutter-based legal platform designed for client-lawyer interactions, legal case management, and online consultation — built with **Supabase** as the backend server.
 
 > ⚠️ This is a work-in-progress project. The frontend is still under active development. Current focus is on backend logic, authentication, and real-time features.
+> 
 🔗 Live Demo:
 👉 https://kareemsaadeh.github.io/Law-Company-App/
 ---
